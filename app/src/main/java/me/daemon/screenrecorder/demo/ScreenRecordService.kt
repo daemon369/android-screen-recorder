@@ -49,23 +49,28 @@ class ScreenRecordService : Service() {
 
     private var time: Long = 0
 
-//    private val mediaRecorder = MediaRecorder()
+    //    private val mediaRecorder = MediaRecorder()
     private val imageReader by lazy {
         windowManager.defaultDisplay.getRealSize(tempPoint)
         ImageReader.newInstance(
             tempPoint.x,
             tempPoint.y,
-            PixelFormat.RGBA_8888,
+//            PixelFormat.RGBA_8888,
+            ImageFormat.JPEG,
             10,
         ).apply {
-            setOnImageAvailableListener({
-                it ?: return@setOnImageAvailableListener
-                val cur = System.currentTimeMillis()
-                if (time != 0L) {
-                    Log.e(TAG, "onImageAvailable interval=${cur - time}")
-                }
-                time = cur
-            }, getOrCreateHandler())
+            setOnImageAvailableListener(
+                {
+                    it ?: return@setOnImageAvailableListener
+                    val cur = System.currentTimeMillis()
+                    if (time != 0L) {
+                        Log.e(TAG, "onImageAvailable interval=${cur - time}")
+                    }
+                    time = cur
+                },
+                getOrCreateHandler(),
+//                null,
+            )
         }
     }
 
