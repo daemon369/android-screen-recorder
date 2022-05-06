@@ -100,7 +100,17 @@ class ScreenRecordService : Service() {
     }
 
     override fun onDestroy() {
-        running = false;
+        running = false
+
+        mediaRecorder.stop()
+        mediaRecorder.release()
+        virtualDisplay?.release()
+        virtualDisplay = null
+        mediaProjection?.apply {
+            stop()
+        }
+        mediaProjection = null
+
         super.onDestroy()
     }
 
