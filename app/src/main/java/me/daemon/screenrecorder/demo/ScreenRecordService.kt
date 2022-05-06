@@ -14,7 +14,6 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
-import android.util.DisplayMetrics
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -55,12 +54,14 @@ class ScreenRecordService : Service() {
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         val f = File(getExternalFilesDir(null), "video.mp4")
+        f.parentFile?.mkdirs()
         mediaRecorder.setOutputFile(f.absolutePath)
         mediaRecorder.setVideoSize(screenWidth, screenHeight)
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
         mediaRecorder.setVideoEncodingBitRate(2 * 1920 * 1080)
         mediaRecorder.setVideoFrameRate(18)
+        mediaRecorder.prepare()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -107,7 +108,8 @@ class ScreenRecordService : Service() {
     private fun createNotification() {
         Log.i(TAG, "notification: " + Build.VERSION.SDK_INT)
         val notificationIntent = Intent(this, ScreenRecordService::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val pendingIntent =
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE)
         val notificationBuilder: NotificationCompat.Builder =
             NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setLargeIcon(
