@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
-import android.graphics.Point
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
@@ -55,8 +54,6 @@ class ScreenRecordService : Service() {
     private var resultCode: Int = -1
     private var resultData: Intent? = null
 
-    private var running = false
-
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate() {
         super.onCreate()
@@ -72,13 +69,13 @@ class ScreenRecordService : Service() {
         resultData = intent?.getParcelableExtra("data")
         createNotification()
 
-        screenAction.init(resultCode, resultData!!)
+        screenAction.start(resultCode, resultData!!)
 
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
-        screenAction.destroy()
+        screenAction.stop()
 
         super.onDestroy()
     }

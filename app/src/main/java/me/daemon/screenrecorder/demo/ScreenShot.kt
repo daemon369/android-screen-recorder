@@ -44,19 +44,20 @@ class ScreenShot(
 
     override fun surface(): Surface = imageReader.surface
 
-    override fun init(resultCode: Int, intent: Intent) {
-        super.init(resultCode, intent)
+    override fun start(resultCode: Int, intent: Intent) {
+        super.start(resultCode, intent)
     }
 
-    override fun destroy() {
-        super.destroy()
+    override fun stop() {
+        destroyHandler()
+        super.stop()
     }
 
     private fun getOrCreateHandler(): Handler {
         val h = handler
         if (h != null) return h
 
-        HandlerThread("image reader").apply {
+        HandlerThread("ScreenShot-ImageReader-Thread").apply {
             handlerThread = this
             start()
             Handler(this.looper).apply {

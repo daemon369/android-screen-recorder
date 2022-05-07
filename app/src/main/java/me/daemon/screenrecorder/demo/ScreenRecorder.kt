@@ -28,7 +28,7 @@ class ScreenRecorder(
 
     override fun surface(): Surface = mediaRecorder.surface
 
-    override fun init(resultCode: Int, intent: Intent) {
+    override fun start(resultCode: Int, intent: Intent) {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -42,7 +42,7 @@ class ScreenRecorder(
         mediaRecorder.setVideoFrameRate(18)
         mediaRecorder.prepare()
         mediaRecorder.start()
-        super.init(resultCode, intent)
+        super.start(resultCode, intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val builder = AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
@@ -53,11 +53,11 @@ class ScreenRecorder(
         }
     }
 
-    override fun destroy() {
+    override fun stop() {
         mediaRecorder.stop()
         mediaRecorder.release()
 
-        super.destroy()
+        super.stop()
     }
 
 }
