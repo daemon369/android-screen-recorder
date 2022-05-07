@@ -3,7 +3,6 @@ package me.daemon.screenrecorder.demo
 import android.content.Context
 import android.content.Intent
 import android.graphics.ImageFormat
-import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
@@ -48,8 +47,8 @@ class ScreenShot(
 
     override fun init() = Unit
 
-    override fun start(resultCode: Int, intent: Intent) {
-        super.start(resultCode, intent)
+    override fun start(intent: Intent) {
+        super.start(intent)
     }
 
     override fun stop() {

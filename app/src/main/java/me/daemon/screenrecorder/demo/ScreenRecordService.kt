@@ -71,23 +71,21 @@ class ScreenRecordService : Service() {
             1 -> {
                 // start recording screen
                 screenAction = screenRecorder
-                val resultCode: Int = intent?.getIntExtra("resultCode", -1) ?: -1
                 val resultData: Intent? = intent?.getParcelableExtra("data")
                 if (resultData != null) {
                     screenAction.init()
                     createNotification()
-                    screenAction.start(resultCode, resultData)
+                    screenAction.start(resultData)
                 }
             }
             2 -> {
                 // start screen capture
                 screenAction = screenShot
-                val resultCode: Int = intent?.getIntExtra("resultCode", -1) ?: -1
                 val resultData: Intent? = intent?.getParcelableExtra("data")
                 if (resultData != null) {
                     screenAction.init()
                     createNotification()
-                    screenAction.start(resultCode, resultData)
+                    screenAction.start(resultData)
                 }
             }
             3 -> {

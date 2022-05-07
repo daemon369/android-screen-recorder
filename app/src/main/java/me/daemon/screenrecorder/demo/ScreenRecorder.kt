@@ -44,8 +44,8 @@ class ScreenRecorder(
         mediaRecorder.start()
     }
 
-    override fun start(resultCode: Int, intent: Intent) {
-        super.start(resultCode, intent)
+    override fun start(intent: Intent) {
+        super.start(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val builder = AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)

@@ -1,5 +1,6 @@
 package me.daemon.screenrecorder.demo
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
@@ -31,9 +32,9 @@ abstract class ScreenAction(
 
     open fun init() = Unit
 
-    open fun start(resultCode: Int, intent: Intent) {
-        log.i("start: resultCode=", resultCode)
-        mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, intent)
+    open fun start(intent: Intent) {
+        log.i("start")
+        mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, intent)
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             javaClass.name,
             screenWidth,
