@@ -49,10 +49,7 @@ class ScreenRecordService : Service() {
         )
     }
 
-    private var screenAction = screenShot
-
-    private var resultCode: Int = -1
-    private var resultData: Intent? = null
+    private lateinit var screenAction: ScreenAction
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate() {
@@ -65,12 +62,42 @@ class ScreenRecordService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
-        resultData = intent?.getParcelableExtra("data")
-        createNotification()
+        val command = intent?.getIntExtra("command", -1) ?: -1
+        if (command == -1) {
+            return super.onStartCommand(intent, flags, startId)
+        }
 
-        screenAction.start(resultCode, resultData!!)
 
+        when (command) {
+            1 -> {
+                // start recording screen
+                screenAction = screenRecorder
+                val resultCode: Int = intent?.getIntExtra("resultCode", -1) ?: -1
+                val resultData: Intent? = intent?.getParcelableExtra("data")
+                if (resultData != null) {
+                    screenAction.init()
+                    createNotification()
+                    screenAction.start(resultCode, resultData)
+                }
+            }
+            2 -> {
+                // start screen capture
+                screenAction = screenShot
+                val resultCode: Int = intent?.getIntExtra("resultCode", -1) ?: -1
+                val resultData: Intent? = intent?.getParcelableExtra("data")
+                if (resultData != null) {
+                    screenAction.init()
+                    createNotification()
+                    screenAction.start(resultCode, resultData)
+                }
+            }
+            3 -> {
+                // stop action
+                if (::screenAction.isInitialized) {
+                    screenAction.stop()
+                }
+            }
+        }
         return super.onStartCommand(intent, flags, startId)
     }
 

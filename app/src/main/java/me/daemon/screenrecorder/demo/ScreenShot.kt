@@ -44,6 +44,8 @@ class ScreenShot(
 
     override fun surface(): Surface = imageReader.surface
 
+    override fun init() = Unit
+
     override fun start(resultCode: Int, intent: Intent) {
         super.start(resultCode, intent)
     }

@@ -24,6 +24,8 @@ abstract class ScreenAction(
 
     abstract fun surface(): Surface
 
+    open fun init() = Unit
+
     open fun start(resultCode: Int, intent: Intent) {
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, intent)
         virtualDisplay = mediaProjection?.createVirtualDisplay(

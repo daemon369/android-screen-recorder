@@ -28,7 +28,7 @@ class ScreenRecorder(
 
     override fun surface(): Surface = mediaRecorder.surface
 
-    override fun start(resultCode: Int, intent: Intent) {
+    override fun init() {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -42,6 +42,9 @@ class ScreenRecorder(
         mediaRecorder.setVideoFrameRate(18)
         mediaRecorder.prepare()
         mediaRecorder.start()
+    }
+
+    override fun start(resultCode: Int, intent: Intent) {
         super.start(resultCode, intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
