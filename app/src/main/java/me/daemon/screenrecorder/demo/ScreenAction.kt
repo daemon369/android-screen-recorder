@@ -7,6 +7,7 @@ import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.view.Surface
+import me.daemon.logger.logger
 import me.daemon.view.common.screenHeight
 import me.daemon.view.common.screenWidth
 
@@ -17,7 +18,11 @@ abstract class ScreenAction(
     val densityDpi: Int,
 ) {
 
-    protected val mediaProjectionManager by lazy { context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager }
+    protected val log by logger()
+
+    protected val mediaProjectionManager by lazy {
+        context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    }
 
     protected var mediaProjection: MediaProjection? = null
     protected var virtualDisplay: VirtualDisplay? = null
@@ -27,6 +32,7 @@ abstract class ScreenAction(
     open fun init() = Unit
 
     open fun start(resultCode: Int, intent: Intent) {
+        log.i("start: resultCode=", resultCode)
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, intent)
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             javaClass.name,
@@ -41,6 +47,7 @@ abstract class ScreenAction(
     }
 
     open fun stop() {
+        log.i("stop")
         virtualDisplay?.release()
         virtualDisplay = null
         mediaProjection?.apply {

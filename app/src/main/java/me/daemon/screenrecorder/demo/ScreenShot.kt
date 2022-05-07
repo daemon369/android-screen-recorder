@@ -6,7 +6,6 @@ import android.graphics.ImageFormat
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import android.view.Surface
 
 class ScreenShot(
@@ -25,10 +24,11 @@ class ScreenShot(
         ).apply {
             setOnImageAvailableListener(
                 {
+                    log.e("onImageAvailable")
                     it ?: return@setOnImageAvailableListener
                     val cur = System.currentTimeMillis()
                     if (time != 0L) {
-                        Log.e("ScreenShot", "onImageAvailable interval=${cur - time}")
+                        log.e("onImageAvailable interval=", cur - time)
                     }
                     time = cur
                 },
