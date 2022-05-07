@@ -2,7 +2,7 @@ package me.daemon.screenrecorder.demo
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
