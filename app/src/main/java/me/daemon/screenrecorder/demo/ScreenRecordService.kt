@@ -5,29 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.PixelFormat
 import android.graphics.Point
-import android.hardware.display.DisplayManager
-import android.hardware.display.VirtualDisplay
-import android.media.AudioAttributes
-import android.media.AudioPlaybackCaptureConfiguration
-import android.media.ImageReader
-import android.media.MediaRecorder
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.os.IBinder
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import me.daemon.view.common.screenHeight
-import me.daemon.view.common.screenWidth
-import java.io.File
 
 
 class ScreenRecordService : Service() {
@@ -41,46 +26,31 @@ class ScreenRecordService : Service() {
         private const val NOTIFICATION_TICKER = "RecorderApp"
     }
 
-    private val mediaProjectionManager by lazy { getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager }
     private val windowManager by lazy { getSystemService(Context.WINDOW_SERVICE) as WindowManager }
 
-    private val tempPoint = Point()
     private val tempDisplayMetrics = DisplayMetrics()
 
-    private var time: Long = 0
-
-    //    private val mediaRecorder = MediaRecorder()
-    private val imageReader by lazy {
-        windowManager.defaultDisplay.getRealSize(tempPoint)
-        ImageReader.newInstance(
-            tempPoint.x,
-            tempPoint.y,
-//            PixelFormat.RGBA_8888,
-            ImageFormat.JPEG,
-            10,
-        ).apply {
-            setOnImageAvailableListener(
-                {
-                    it ?: return@setOnImageAvailableListener
-                    val cur = System.currentTimeMillis()
-                    if (time != 0L) {
-                        Log.e(TAG, "onImageAvailable interval=${cur - time}")
-                    }
-                    time = cur
-                },
-                getOrCreateHandler(),
-//                null,
-            )
-        }
+    private val screenShot by lazy {
+        windowManager.defaultDisplay.getRealMetrics(tempDisplayMetrics)
+        ScreenShot(
+            this,
+            tempDisplayMetrics.widthPixels,
+            tempDisplayMetrics.heightPixels,
+            tempDisplayMetrics.densityDpi,
+        )
     }
 
-    private var mediaProjection: MediaProjection? = null
-    private var audioPlaybackCaptureConfiguration: AudioPlaybackCaptureConfiguration? = null
+    private val screenRecorder by lazy {
+        windowManager.defaultDisplay.getRealMetrics(tempDisplayMetrics)
+        ScreenRecorder(
+            this,
+            tempDisplayMetrics.widthPixels,
+            tempDisplayMetrics.heightPixels,
+            tempDisplayMetrics.densityDpi,
+        )
+    }
 
-    private var virtualDisplay: VirtualDisplay? = null
-
-    private var handlerThread: HandlerThread? = null
-    private var handler: Handler? = null
+    private var screenAction = screenShot
 
     private var resultCode: Int = -1
     private var resultData: Intent? = null
@@ -92,18 +62,6 @@ class ScreenRecordService : Service() {
         super.onCreate()
         createNotification()
 
-//        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-//        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-//        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        val f = File(getExternalFilesDir(null), "video.mp4")
-//        f.parentFile?.mkdirs()
-//        mediaRecorder.setOutputFile(f.absolutePath)
-//        mediaRecorder.setVideoSize(screenWidth, screenHeight)
-//        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-//        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-//        mediaRecorder.setVideoEncodingBitRate(2 * 1920 * 1080)
-//        mediaRecorder.setVideoFrameRate(18)
-//        mediaRecorder.prepare()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -112,47 +70,15 @@ class ScreenRecordService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         resultCode = intent?.getIntExtra("resultCode", -1) ?: -1
         resultData = intent?.getParcelableExtra("data")
-        Log.i(TAG, "onStartCommand: $resultCode")
-        Log.i(TAG, "onStartCommand: $resultData")
         createNotification()
 
-        mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, resultData!!)
-        virtualDisplay = mediaProjection?.createVirtualDisplay(
-            "ScreenRecordService",
-            screenWidth,
-            screenHeight,
-            resources.displayMetrics.densityDpi,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-//            mediaRecorder.surface,
-            imageReader.surface,
-            null,
-            null
-        )
+        screenAction.init(resultCode, resultData!!)
 
-//        mediaRecorder.start()
-
-        Log.i(TAG, "onStartCommand: $mediaProjection")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val builder = AudioPlaybackCaptureConfiguration.Builder(mediaProjection!!)
-            builder.addMatchingUsage(AudioAttributes.USAGE_MEDIA)
-            builder.addMatchingUsage(AudioAttributes.USAGE_ALARM)
-            builder.addMatchingUsage(AudioAttributes.USAGE_GAME)
-            audioPlaybackCaptureConfiguration = builder.build()
-        }
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
-        running = false
-
-//        mediaRecorder.stop()
-//        mediaRecorder.release()
-        virtualDisplay?.release()
-        virtualDisplay = null
-        mediaProjection?.apply {
-            stop()
-        }
-        mediaProjection = null
+        screenAction.destroy()
 
         super.onDestroy()
     }
@@ -192,24 +118,4 @@ class ScreenRecordService : Service() {
         )
     }
 
-    private fun getOrCreateHandler(): Handler {
-        val h = handler
-        if (h != null) return h
-
-        HandlerThread("image reader").apply {
-            handlerThread = this
-            start()
-            Handler(this.looper).apply {
-                handler = this
-                return this
-            }
-        }
-    }
-
-    private fun destroyHandler() {
-        handler?.removeCallbacksAndMessages(null)
-        handler = null
-        handlerThread?.quitSafely()
-        handlerThread = null
-    }
 }
