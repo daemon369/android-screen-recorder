@@ -11,7 +11,8 @@ class App : InfrastructureApp() {
 
     init {
         openLog = true
-        defaultShowCaller = true
+//        defaultShowCaller = true
+        defaultShowCaller = false
         defaultLevel = Level.DEBUG
         defaultTag = "Daemon-Screen-Recorder"
     }

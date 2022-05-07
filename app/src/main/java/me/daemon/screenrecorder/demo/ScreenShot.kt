@@ -25,13 +25,17 @@ class ScreenShot(
         ).apply {
             setOnImageAvailableListener(
                 {
-                    log.e("onImageAvailable")
                     it ?: return@setOnImageAvailableListener
                     val cur = System.currentTimeMillis()
                     if (time != 0L) {
                         log.e("onImageAvailable interval=", cur - time)
+                    } else {
+                        log.e("onImageAvailable")
                     }
                     time = cur
+
+                    val image = it.acquireNextImage()
+                    image.close()
                 },
                 getOrCreateHandler(),
             )
