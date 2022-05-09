@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "android-screen-recorder"
 include(":app")
+include(":screen-recorder")
