@@ -2,4 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="me.daemon.screenrecorder">
 
+    <application>
+
+        <service
+            android:name="me.daemon.screenrecorder.ScreenRecordService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+    </application>
+
 </manifest>
