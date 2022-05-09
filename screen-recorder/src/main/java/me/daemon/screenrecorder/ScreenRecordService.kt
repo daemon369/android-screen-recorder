@@ -52,10 +52,11 @@ class ScreenRecordService : Service() {
 
     private lateinit var screenAction: ScreenAction
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    private var largeIconId = 0
+    private var smallIconId = 0
+
     override fun onCreate() {
         super.onCreate()
-        createNotification()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -71,6 +72,8 @@ class ScreenRecordService : Service() {
             1 -> {
                 // start recording screen
                 screenAction = screenRecorder
+                largeIconId = intent?.getIntExtra("largeIconId", 0) ?: 0
+                smallIconId = intent?.getIntExtra("smallIconId", 0) ?: 0
                 val resultData: Intent? = intent?.getParcelableExtra("data")
                 if (resultData != null) {
                     screenAction.init()
@@ -81,6 +84,8 @@ class ScreenRecordService : Service() {
             2 -> {
                 // start screen capture
                 screenAction = screenShot
+                largeIconId = intent?.getIntExtra("largeIconId", 0) ?: 0
+                smallIconId = intent?.getIntExtra("smallIconId", 0) ?: 0
                 val resultData: Intent? = intent?.getParcelableExtra("data")
                 if (resultData != null) {
                     screenAction.init()
@@ -117,17 +122,16 @@ class ScreenRecordService : Service() {
             )
         val notificationBuilder: NotificationCompat.Builder =
             NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                .setLargeIcon(
-                    BitmapFactory.decodeResource(
-                        resources,
-                        R.drawable.ic_launcher_foreground
-                    )
-                )
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Screen recorder service")
                 .setContentText("Screen recorder service")
                 .setTicker(NOTIFICATION_TICKER)
                 .setContentIntent(pendingIntent)
+        if (largeIconId > 0) {
+            notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(resources, largeIconId))
+        }
+        if (smallIconId > 0) {
+            notificationBuilder.setSmallIcon(smallIconId)
+        }
         val notification: Notification = notificationBuilder.build()
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,

@@ -86,13 +86,17 @@ class MainActivity : AppCompatActivity() {
                 1 -> {
                     val intent2 = Intent(this@MainActivity, ScreenRecordService::class.java)
                     intent2.putExtra("command", 1)
-                    intent2.putExtra("data", data);
+                    intent2.putExtra("largeIconId", R.drawable.ic_launcher_foreground)
+                    intent2.putExtra("smallIconId", R.drawable.ic_launcher_foreground)
+                    intent2.putExtra("data", data)
                     startForegroundService(intent2)
                 }
                 2 -> {
                     val intent2 = Intent(this@MainActivity, ScreenRecordService::class.java)
                     intent2.putExtra("command", 2)
-                    intent2.putExtra("data", data);
+                    intent2.putExtra("largeIconId", R.drawable.ic_launcher_foreground)
+                    intent2.putExtra("smallIconId", R.drawable.ic_launcher_foreground)
+                    intent2.putExtra("data", data)
                     startForegroundService(intent2)
                 }
             }
