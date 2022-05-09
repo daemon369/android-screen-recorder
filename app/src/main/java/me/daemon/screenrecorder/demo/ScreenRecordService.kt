@@ -32,7 +32,7 @@ class ScreenRecordService : Service() {
 
     private val screenShot by lazy {
         windowManager.defaultDisplay.getRealMetrics(tempDisplayMetrics)
-        ScreenShot(
+        me.daemon.screenrecorder.ScreenShot(
             this,
             tempDisplayMetrics.widthPixels,
             tempDisplayMetrics.heightPixels,
@@ -42,7 +42,7 @@ class ScreenRecordService : Service() {
 
     private val screenRecorder by lazy {
         windowManager.defaultDisplay.getRealMetrics(tempDisplayMetrics)
-        ScreenRecorder(
+        me.daemon.screenrecorder.ScreenRecorder(
             this,
             tempDisplayMetrics.widthPixels,
             tempDisplayMetrics.heightPixels,
@@ -50,7 +50,7 @@ class ScreenRecordService : Service() {
         )
     }
 
-    private lateinit var screenAction: ScreenAction
+    private lateinit var screenAction: me.daemon.screenrecorder.ScreenAction
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate() {

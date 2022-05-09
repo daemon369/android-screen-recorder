@@ -44,4 +44,6 @@ dependencies {
     implementation 'io.github.daemon369:android-infrastructure:1.0.0'
     implementation 'io.github.daemon369:android-view-common:0.3.0'
     implementation 'io.github.daemon369:android-logger:1.2.0'
+
+    implementation project(':screen-recorder')
 }

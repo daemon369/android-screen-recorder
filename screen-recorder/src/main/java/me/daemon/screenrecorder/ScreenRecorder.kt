@@ -1,4 +1,4 @@
-package me.daemon.screenrecorder.demo
+package me.daemon.screenrecorder
 
 import android.content.Context
 import android.content.Intent
