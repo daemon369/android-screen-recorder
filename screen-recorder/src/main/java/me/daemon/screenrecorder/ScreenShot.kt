@@ -13,7 +13,7 @@ class ScreenShot(
     width: Int,
     height: Int,
     densityDpi: Int,
-) : ScreenAction(context, width, height, densityDpi) {
+) : ScreenAction(context.applicationContext, width, height, densityDpi) {
 
     private val imageReader by lazy {
         ImageReader.newInstance(
