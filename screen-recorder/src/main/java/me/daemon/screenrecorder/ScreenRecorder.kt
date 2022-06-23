@@ -5,20 +5,24 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioPlaybackCaptureConfiguration
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.view.Surface
-import java.io.File
+import me.daemon.storage.VideoMetadata
+import me.daemon.storage.closeMedia
+import me.daemon.storage.openFileDescriptor
+import me.daemon.storage.openVideo
 
 class ScreenRecorder(
     context: Context,
     width: Int,
     height: Int,
     densityDpi: Int,
-) : ScreenAction(context, width, height, densityDpi) {
+) : ScreenAction(context.applicationContext, width, height, densityDpi) {
 
     private val mediaRecorder by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(context)
+            MediaRecorder(context.applicationContext)
         } else {
             MediaRecorder()
         }
@@ -26,15 +30,29 @@ class ScreenRecorder(
 
     private var audioPlaybackCaptureConfiguration: AudioPlaybackCaptureConfiguration? = null
 
+    private var videoUri: Uri? = null
+
     override fun surface(): Surface = mediaRecorder.surface
 
     override fun init() {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        val f = File(context.getExternalFilesDir(null), "video.mp4")
-        f.parentFile?.mkdirs()
-        mediaRecorder.setOutputFile(f.absolutePath)
+
+        val uri = context.openVideo(
+            VideoMetadata
+                .builder()
+                .name("screen-${timestamp()}.mp4")
+                .width(width)
+                .height(height)
+                .build()
+        ) ?: return
+
+        videoUri = uri
+
+        val descriptor = context.openFileDescriptor(uri) ?: return
+
+        mediaRecorder.setOutputFile(descriptor.fileDescriptor)
         mediaRecorder.setVideoSize(width, height)
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
@@ -59,6 +77,11 @@ class ScreenRecorder(
     override fun stop() {
         mediaRecorder.stop()
         mediaRecorder.release()
+        videoUri?.let {
+            context.closeMedia(it)
+            callback.onMediaSaved(it)
+        }
+        videoUri = null
 
         super.stop()
     }

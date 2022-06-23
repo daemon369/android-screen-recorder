@@ -7,10 +7,13 @@ import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.view.Surface
 import me.daemon.logger.logger
 import me.daemon.view.common.screenHeight
 import me.daemon.view.common.screenWidth
+import java.text.SimpleDateFormat
+import java.util.*
 
 abstract class ScreenAction(
     val context: Context,
@@ -18,6 +21,17 @@ abstract class ScreenAction(
     val height: Int,
     val densityDpi: Int,
 ) {
+
+    companion object {
+
+        private val format by lazy { SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()) }
+
+        internal fun timestamp(): String = format.format(Date())
+    }
+
+    interface ICallback {
+        fun onMediaSaved(uri: Uri)
+    }
 
     protected val log by logger()
 
@@ -27,6 +41,12 @@ abstract class ScreenAction(
 
     protected var mediaProjection: MediaProjection? = null
     protected var virtualDisplay: VirtualDisplay? = null
+
+    protected var callback: ICallback = object : ICallback {
+        override fun onMediaSaved(uri: Uri) = Unit
+    }
+
+    fun callback(callback: ICallback) = apply { this.callback = callback }
 
     abstract fun surface(): Surface
 
