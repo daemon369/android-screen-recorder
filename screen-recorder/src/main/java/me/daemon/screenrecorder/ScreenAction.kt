@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
+import android.media.Image
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -31,6 +32,7 @@ abstract class ScreenAction(
 
     interface ICallback {
         fun onMediaSaved(uri: Uri)
+        fun onImageAvailable(image: Image)
     }
 
     protected val log by logger()
@@ -42,11 +44,8 @@ abstract class ScreenAction(
     protected var mediaProjection: MediaProjection? = null
     protected var virtualDisplay: VirtualDisplay? = null
 
-    protected var callback: ICallback = object : ICallback {
-        override fun onMediaSaved(uri: Uri) = Unit
-    }
-
-    fun callback(callback: ICallback) = apply { this.callback = callback }
+    var videoCallback: (Uri.() -> Unit) = {}
+    var imageCallback: (Image.() -> Unit) = {}
 
     abstract fun surface(): Surface
 

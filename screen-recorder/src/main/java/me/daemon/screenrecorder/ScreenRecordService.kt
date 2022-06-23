@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
@@ -39,7 +38,11 @@ class ScreenRecordService : Service() {
             tempDisplayMetrics.widthPixels,
             tempDisplayMetrics.heightPixels,
             tempDisplayMetrics.densityDpi,
-        )
+        ).apply {
+            imageCallback = {
+                log.e("Image available: $this")
+            }
+        }
     }
 
     private val screenRecorder by lazy {
@@ -50,11 +53,9 @@ class ScreenRecordService : Service() {
             tempDisplayMetrics.heightPixels,
             tempDisplayMetrics.densityDpi,
         ).apply {
-            callback(object : ScreenAction.ICallback {
-                override fun onMediaSaved(uri: Uri) {
-                    Toast.makeText(context, "Saved to $uri", Toast.LENGTH_SHORT).show()
-                }
-            })
+            videoCallback = {
+                Toast.makeText(context, "Saved to $this", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

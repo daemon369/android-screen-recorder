@@ -79,7 +79,7 @@ class ScreenRecorder(
         mediaRecorder.release()
         videoUri?.let {
             context.closeMedia(it)
-            callback.onMediaSaved(it)
+            videoCallback(it)
         }
         videoUri = null
 

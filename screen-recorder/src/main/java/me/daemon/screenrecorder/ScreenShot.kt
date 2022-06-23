@@ -24,8 +24,8 @@ class ScreenShot(
             10
         ).apply {
             setOnImageAvailableListener(
-                {
-                    it ?: return@setOnImageAvailableListener
+                { reader ->
+                    reader ?: return@setOnImageAvailableListener
                     val cur = System.currentTimeMillis()
                     if (time != 0L) {
                         log.e("onImageAvailable interval=", cur - time)
@@ -34,8 +34,9 @@ class ScreenShot(
                     }
                     time = cur
 
-                    val image = it.acquireNextImage()
-                    image.close()
+                    reader.acquireNextImage().use { image ->
+                        imageCallback(image)
+                    }
                 },
                 getOrCreateHandler(),
             )
